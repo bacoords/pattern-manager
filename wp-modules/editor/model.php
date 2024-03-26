@@ -46,7 +46,7 @@ add_action( 'the_post', __NAMESPACE__ . '\populate_pattern_from_file' );
 /**
  * Saves the pattern to the .php file, and also removes the mocked post required for the WP editing UI.
  *
- * @param int $post_id The post ID.
+ * @param int     $post_id The post ID.
  * @param WP_Post $post The post.
  */
 function save_pattern_to_file( WP_Post $post ) {
@@ -60,24 +60,24 @@ function save_pattern_to_file( WP_Post $post ) {
 		array_merge(
 			// Only set the slug to the name for new patterns.
 			// Patterns created without PM might have a different slug and name.
-			$pattern ? $pattern : [ 'slug' => prepend_textdomain( $name ) ],
-			[
+			$pattern ? $pattern : array( 'slug' => prepend_textdomain( $name ) ),
+			array(
 				'content' => $post->post_content,
 				'name'    => $name,
-			],
+			),
 			$post->post_title
-				? [ 'title' => $post->post_title ]
-				: []
+				? array( 'title' => $post->post_title )
+				: array()
 		)
 	);
 
 	// Remove pattern data from the post, as it was written to the pattern .php file.
 	wp_update_post(
-		[
+		array(
 			'ID'           => $post->ID,
 			'post_title'   => '',
 			'post_content' => '',
-		]
+		)
 	);
 
 	tree_shake_theme_images( get_wp_filesystem_api(), 'copy_dir' );
@@ -88,9 +88,9 @@ add_action( 'rest_after_insert_' . get_pattern_post_type(), __NAMESPACE__ . '\sa
  * Saves a meta value to the pattern file, instead of the DB.
  *
  * @param null|bool $override Whether to override Core's saving of metadata.
- * @param int $post_id The post ID.
- * @param string $meta_key The meta key to update.
- * @param mixed $meta_value The meta value to update.
+ * @param int       $post_id The post ID.
+ * @param string    $meta_key The meta key to update.
+ * @param mixed     $meta_value The meta value to update.
  * @return null|bool Whether to override Core's saving of metadata to the DB.
  */
 function save_metadata_to_pattern_file( $override, $post_id, $meta_key, $meta_value ) {
@@ -120,10 +120,10 @@ function save_metadata_to_pattern_file( $override, $post_id, $meta_key, $meta_va
 
 	if ( 'name' === $meta_key ) {
 		wp_update_post(
-			[
+			array(
 				'ID'        => $post_id,
 				'post_name' => $meta_value,
-			]
+			)
 		);
 	}
 
@@ -137,15 +137,15 @@ function save_metadata_to_pattern_file( $override, $post_id, $meta_key, $meta_va
 	return update_pattern(
 		array_merge(
 			get_pattern_defaults(),
-			$pattern ? $pattern : [
+			$pattern ? $pattern : array(
 				'title' => $post->post_title,
 				'slug'  => $slug,
-			],
-			$name_changed ? [ 'slug' => $slug ] : [],
-			[
+			),
+			$name_changed ? array( 'slug' => $slug ) : array(),
+			array(
 				'name'    => $pattern_name,
 				$meta_key => $meta_value,
-			]
+			)
 		)
 	);
 }
@@ -155,9 +155,9 @@ add_filter( 'update_post_metadata', __NAMESPACE__ . '\save_metadata_to_pattern_f
  * Gets the metadata from the pattern file, not the DB.
  *
  * @param null|mixed $override The filtered metadata, or null to get meta from the DB.
- * @param int $post_id The post ID the meta is for.
- * @param string $meta_key The meta key to get.
- * @param bool $is_single Whether the meta is single.
+ * @param int        $post_id The post ID the meta is for.
+ * @param string     $meta_key The meta key to get.
+ * @param bool       $is_single Whether the meta is single.
  * @return null|mixed The filtered meta value, or null.
  */
 function get_metadata_from_pattern_file( $override, $post_id, $meta_key, $is_single ) {
@@ -168,7 +168,7 @@ function get_metadata_from_pattern_file( $override, $post_id, $meta_key, $is_sin
 
 	$pattern = get_pattern_by_name( $post->post_name );
 	if ( isset( $pattern[ $meta_key ] ) ) {
-		return $is_single ? $pattern[ $meta_key ] : [ $pattern[ $meta_key ] ];
+		return $is_single ? $pattern[ $meta_key ] : array( $pattern[ $meta_key ] );
 	}
 
 	return $override;
@@ -211,7 +211,7 @@ function add_active_theme_to_heartbeat( $response, $data, $screen_id ) {
 	return get_pattern_post_type() === $screen_id
 		? array_merge(
 			$response,
-			[ 'activeTheme' => basename( get_stylesheet_directory() ) ]
+			array( 'activeTheme' => basename( get_stylesheet_directory() ) )
 		)
 		: $response;
 }
@@ -241,7 +241,7 @@ add_action( 'after_switch_theme', __NAMESPACE__ . '\delete_pattern_posts' );
  * as the file name is a slug of that title.
  * And it must be unique.
  *
- * @param string $post_title The post title.
+ * @param string  $post_title The post title.
  * @param WP_Post $post The post.
  * @return string
  */
